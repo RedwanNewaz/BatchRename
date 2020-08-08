@@ -6,10 +6,24 @@
 
 RefactorFilename::RefactorFilename(const string &dir_path):dir_path(dir_path) {
     prefix = "";
-    mf_read_files();
+
+
+}
+void RefactorFilename::read_files(bool numeric_only) {
+
+    if(numeric_only)
+    {
+        std::regex rgx("[a-zA-Z\\-,_;]+");
+        mf_read_files(rgx);
+    }
+    else
+    {
+        std::regex rgx("[\\s.\\-,_;]+");
+        mf_read_files(rgx);
+    }
 }
 
-void RefactorFilename::mf_read_files() {
+void RefactorFilename::mf_read_files(const regex& rgx) {
 
     fs::path p (dir_path);
 
@@ -19,6 +33,8 @@ void RefactorFilename::mf_read_files() {
     int total_files = 0;
     int sum_parts_len = 0;
     max_parts_len = 0;
+    // rgx will decompose the file name into parts
+
     // cycle through the directory
     for (fs::directory_iterator itr(p); itr != end_itr; ++itr, ++total_files)
     {
@@ -29,7 +45,7 @@ void RefactorFilename::mf_read_files() {
 //            cout << filename << endl;
             list<string> item{filename};
             mf_sep_extention(item);
-            mf_sep_filename(item);
+            mf_sep_filename(item, rgx);
             sum_parts_len+=item.size();
             data_map[filename]= item;
             max_parts_len = max(item.size(), max_parts_len);
@@ -48,11 +64,10 @@ void RefactorFilename::mf_sep_extention(list<string> &item) {
     item.push_back(result.back());
 }
 
-void RefactorFilename::mf_sep_filename(list<string>& item) {
+void RefactorFilename::mf_sep_filename(list<string>& item, const std::regex& rgx) {
     auto filename = item.front();
     auto ext = item.back();
     item.clear();
-    std::regex rgx("[\\s.\\-,_;]+");
     std::sregex_token_iterator iter(filename.begin(),
                                     filename.end(),
                                     rgx,
@@ -139,7 +154,7 @@ void RefactorFilename::write_files() {
         {
            if(piece.compare(it->second.back())==0)
                 s += "."+piece;
-            else if(avg_len>2 && --count>0)
+            else if(avg_len>2 && --count>0 && (not piece.empty()))
                 s += piece+"_";
             else
                 s += piece;
@@ -170,3 +185,5 @@ void RefactorFilename::remove_parts(int remove_id) {
     }
 
 }
+
+

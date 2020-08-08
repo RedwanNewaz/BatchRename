@@ -34,6 +34,7 @@ class RefactorFilename {
     using NAMEMAP = map<string, list<string>>;
 public:
     RefactorFilename(const string& dir_path);
+    void read_files(bool numeric_only = false);
     void sample_names();
     void zero_padding(const char* pad, int part_index);
     void remove_parts(int remove_id);
@@ -46,10 +47,11 @@ private:
     std::size_t max_parts_len, avg_len;
     string prefix;
 
+
 protected:
-    void mf_read_files();
+    void mf_read_files(const regex& rgx);
     void mf_sep_extention(list<string>& item);
-    void mf_sep_filename(list<string>& item);
+    void mf_sep_filename(list<string>& item, const std::regex& rgx);
 
 };
 

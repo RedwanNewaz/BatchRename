@@ -10,6 +10,7 @@ int main(int argc, char *argv[]) {
     desc.add_options()
             ("help,h", "Help screen")
             ("samples", "random samples after modification")
+            ("numeric", "remove everything except numbers")
             ("pad",value<std::string>(), "zero padding format e.g., %04d")
             ("prefix",value<std::string>(), "prefix before the filename")
             ("index", value<int>()->default_value(0), "padding index")
@@ -24,6 +25,12 @@ int main(int argc, char *argv[]) {
     }
 
     RefactorFilename rename(argv[1]);
+
+    if(vm.count("numeric"))
+        rename.read_files(true);
+    else
+        rename.read_files();
+
     if(vm.count("remove"))
         rename.remove_parts(vm["remove"].as<int>());
 
